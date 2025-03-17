@@ -10,7 +10,7 @@ classDiagram
   Employee <-- Calendar
   Payroll <-- Calendar
   Recruitment <-- Calendar
-  Interview <-- Calnedar
+  Interview <-- Calendar
 
   //classes
   class Employee {
