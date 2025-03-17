@@ -12,7 +12,6 @@ classDiagram
   Recruitment <-- Calendar
   Interview <-- Calendar
 
-  //classes
   class Employee {
     - employeeID: int
     - name: String
