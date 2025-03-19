@@ -1,0 +1,27 @@
+public class Leave {
+    // Private attributes
+    private String leaveType; // Type of leave
+    private int startDate;     // Start date of leave
+    private int endDate;       // End date of leave
+    private String status;      // Status of the leave application
+
+    // Method to apply for leave
+    public void applyForLeave() {
+        // Implementation for applying leave
+    }
+
+    // Method to approve leave
+    public void approveLeave() {
+        // Implementation for approving leave
+    }
+
+    // Method to reject leave
+    public void rejectLeave() {
+        // Implementation for rejecting leave
+    }
+
+    // Method to calculate leave balance
+    public void calculateLeaveBalance() {
+        // Implementation for calculating leave balance
+    }
+}
