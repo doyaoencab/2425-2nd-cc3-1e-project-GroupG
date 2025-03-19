@@ -1,0 +1,23 @@
+public class Payroll {
+    // Attributes
+    private double basicSalary; // Basic salary of the employee
+    private double bonuses;      // Bonuses received by the employee
+    private double deductions;   // Deductions from the salary
+    private double netSalary;    // Net salary after deductions and bonuses
+    private String payrollMonth; // Month for which the payroll is generated
+
+    // Method to generate the payslip
+    public void generatePayslip() {
+        // Implementation for generating payslip
+    }
+
+    // Method to calculate deductions
+    public void calculateDeductions() {
+        // Implementation for calculating deductions
+    }
+
+    // Method to add bonuses
+    public void addBonuses() {
+        // Implementation for adding bonuses
+    }
+}
