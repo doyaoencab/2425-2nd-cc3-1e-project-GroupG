@@ -1,0 +1,28 @@
+/**
+ * Represents a Calendar that can manage events.
+ */
+public class Calendar {
+    // The date represented as an integer
+    private int date;
+
+    /**
+     * Adds an event to the calendar.
+     */
+    public void addEvent() {
+        // Implementation goes here
+    }
+
+    /**
+     * Removes an event from the calendar.
+     */
+    public void removeEvent() {
+        // Implementation goes here
+    }
+
+    /**
+     * Views the monthly schedule.
+     */
+    public void viewMonthlySchedule() {
+        // Implementation goes here
+    }
+}
