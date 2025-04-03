@@ -1,0 +1,59 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+
+public class LoginFrame {
+    public static void main(String[] args) {
+        // Create a window for the login form
+        JFrame loginFrame = new JFrame("Login");
+        loginFrame.setSize(300, 200); // Set window size
+        loginFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+        
+        JPanel panel = new JPanel();
+        panel.setLayout(new GridLayout(3, 2)); 
+        
+        // Add labels and fields for the username and password
+        JLabel usernameLabel = new JLabel("Username: ");
+        // Input for username
+        JTextField usernameField = new JTextField(); 
+        JLabel passwordLabel = new JLabel("Password: ");
+        // input for password
+        JPasswordField passwordField = new JPasswordField(); 
+        
+        // Add a login button
+        JButton loginButton = new JButton("Login");
+        
+        // Add all the components to the panel
+        panel.add(usernameLabel);
+        panel.add(usernameField);
+        panel.add(passwordLabel);
+        panel.add(passwordField);
+        panel.add(new JLabel()); // Empty space for layout
+        panel.add(loginButton);
+        
+
+        loginFrame.add(panel);
+        
+ 
+        loginFrame.setVisible(true);
+        
+   
+        loginButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                // Get the username and password entered by the user
+                String username = usernameField.getText();
+                String password = new String(passwordField.getPassword()); // Convert password to string
+                
+                // to check if the password and username input is correct
+                if (username.equals("admin") && password.equals("password")) {
+                    // if correct
+                    JOptionPane.showMessageDialog(loginFrame, "Login Successful!");
+                
+                } else {
+                    // if incorrect show error message
+                    JOptionPane.showMessageDialog(loginFrame, "Invalid username or password.", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+    }
+}
