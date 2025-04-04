@@ -68,6 +68,8 @@ public class EmployeeManagementSystemGUI {
             public void actionPerformed(ActionEvent e) {
                 if (usernameField.getText().isEmpty() || passwordField.getPassword().length == 0) {
                     JOptionPane.showMessageDialog(frame, "All fields must be filled!", "Error", JOptionPane.ERROR_MESSAGE);
+                } else if (usernameField.getText().length() > 20) {
+                    JOptionPane.showMessageDialog(frame, "Characters must only be less than 20!", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
                     // Proceed with login
                 }
