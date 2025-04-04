@@ -1,0 +1,75 @@
+package com.mycompany.employeemanagementsystemgui;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class EmployeeManagementSystemGUI {
+    private JFrame frame;
+    private JPanel panel;
+    private JTextField usernameField;
+    private JPasswordField passwordField;
+    private JButton loginButton, registerButton, forgotPasswordButton;
+
+    public EmployeeManagementSystemGUI() {
+        frame = new JFrame("Employee Management System");
+        panel = new JPanel(new GridBagLayout()); // Centering panel in the frame
+        GridBagConstraints grid = new GridBagConstraints();
+        
+        grid.insets = new Insets(10, 10, 10, 10); // Spacing between elements
+        grid.anchor = GridBagConstraints.CENTER; // Aligns everything in the center
+
+        JLabel title = new JLabel("Employee Management System");
+        title.setFont(new Font("Serif", Font.BOLD, 24));
+
+        JLabel usernameLabel = new JLabel("Username:");
+        usernameField = new JTextField(20);
+        JLabel passwordLabel = new JLabel("Password:");
+        passwordField = new JPasswordField(20);
+
+        loginButton = new JButton("Login");
+        registerButton = new JButton("Register");
+        forgotPasswordButton = new JButton("Forgot Password?");
+
+        // Adding title
+        grid.gridx = 0; grid.gridy = 0; grid.gridwidth = 2; // Title spans 2 columns
+        panel.add(title, grid);
+
+        // Reset gridwidth for other elements
+        grid.gridwidth = 1;
+
+        // Adding Username Label and Field side by side
+        grid.gridx = 0; grid.gridy = 1; grid.anchor = GridBagConstraints.EAST;
+        panel.add(usernameLabel, grid);
+        grid.gridx = 1; grid.anchor = GridBagConstraints.WEST;
+        panel.add(usernameField, grid);
+
+        // Adding Password Label and Field side by side
+        grid.gridx = 0; grid.gridy = 2; grid.anchor = GridBagConstraints.EAST;
+        panel.add(passwordLabel, grid);
+        grid.gridx = 1; grid.anchor = GridBagConstraints.WEST;
+        panel.add(passwordField, grid);
+
+        // Reset alignment for buttons
+        grid.gridwidth = 2; 
+        grid.gridx = 0; grid.gridy = 3; grid.anchor = GridBagConstraints.CENTER;
+        panel.add(loginButton, grid);
+        
+        grid.gridy = 4;
+        panel.add(registerButton, grid);
+
+        grid.gridy = 5;
+        panel.add(forgotPasswordButton, grid);
+
+        // Frame settings
+        frame.setLayout(new GridBagLayout()); // Centers the panel inside the frame
+        frame.add(panel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(500, 500);
+        frame.setLocationRelativeTo(null); // Centers the window on the screen
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        new EmployeeManagementSystemGUI();
+    }
+}
