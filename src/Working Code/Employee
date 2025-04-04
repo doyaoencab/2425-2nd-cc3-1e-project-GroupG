@@ -1,0 +1,68 @@
+
+    package com.mycompany.employeemanagementsystemgui;
+
+    import javax.swing.*;
+    import java.awt.*;
+    import java.awt.event.ActionEvent;
+    import java.awt.event.ActionListener;
+
+    public class EmployeeDashboard extends JFrame {
+        private JButton addEmployeeButton;
+        private JButton viewEmployeeButton;
+        private JButton editEmployeeButton;
+        private JButton removeEmployeeButton;
+
+        public EmployeeDashboard() {
+            setTitle("Employee Dashboard");
+            setSize(400, 300);
+            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            setLayout(new FlowLayout());
+
+            addEmployeeButton = new JButton("Add Employee");
+            viewEmployeeButton = new JButton("View Employee");
+            editEmployeeButton = new JButton("Edit Employee");
+            removeEmployeeButton = new JButton("Remove Employee");
+
+            addEmployeeButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    // Code to add employee
+                }
+            });
+
+            viewEmployeeButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    // Code to view employee
+                }
+            });
+
+            editEmployeeButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    // Code to edit employee
+                }
+            });
+
+            removeEmployeeButton.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    // Code to remove employee
+                }
+            });
+
+            add(addEmployeeButton);
+            add(viewEmployeeButton);
+            add(editEmployeeButton);
+            add(removeEmployeeButton);
+        }
+
+        public static void main(String[] args) {
+            SwingUtilities.invokeLater(new Runnable() {
+                public void run() {
+                    EmployeeDashboard dashboard = new EmployeeDashboard();
+                    dashboard.setVisible(true);
+                }
+
+
+// the code is not final yet.
+            });
+        }
+    }
+
