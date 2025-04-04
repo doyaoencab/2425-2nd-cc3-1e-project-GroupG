@@ -1,0 +1,70 @@
+
+package com.mycompany.employeemanagementsystemgui;
+
+import javax.swing.*;
+import java.awt.*;
+
+public class EmployeeManagementSystemGUI {
+    private JFrame frame;
+    private JPanel panel;
+    private JButton loginButton, registerButton, forgotPasswordButton, recruitmentButton, calendarButton;
+
+    public EmployeeManagementSystemGUI() {
+        frame = new JFrame("Dashboard");
+        panel = new JPanel(new GridBagLayout()); // Centering panel in the frame
+        GridBagConstraints grid = new GridBagConstraints();
+        
+        grid.insets = new Insets(10, 10, 10, 10); // Spacing between elements
+        grid.anchor = GridBagConstraints.CENTER; // Aligns everything in the center
+
+        JLabel title = new JLabel("Dashboard");
+        title.setFont(new Font("Serif", Font.BOLD, 24));
+
+        loginButton = new JButton("Employee Management");
+        registerButton = new JButton("Leave Management");
+        forgotPasswordButton = new JButton("Payroll Management");
+        recruitmentButton = new JButton("Recruitment");
+        calendarButton = new JButton("Calendar");
+
+        // Adding title
+        grid.gridx = 0; grid.gridy = 0; grid.gridwidth = 2; // Title spans 2 columns
+        panel.add(title, grid);
+
+        // Reset alignment for buttons
+        grid.gridwidth = 2; 
+        grid.gridx = 0; grid.gridy = 1; grid.anchor = GridBagConstraints.CENTER;
+        panel.add(loginButton, grid);
+        
+        grid.gridy = 2;
+        panel.add(registerButton, grid);
+
+        grid.gridy = 3;
+        panel.add(forgotPasswordButton, grid);
+
+        grid.gridy = 4; // Added line to make recruitment button visible
+        panel.add(recruitmentButton, grid);
+
+        grid.gridy = 5; // Added line to make calendar button visible
+        panel.add(calendarButton, grid);
+
+        // Set equal sizes for buttons
+        Dimension buttonSize = new Dimension(200, 50);
+        loginButton.setPreferredSize(buttonSize);
+        registerButton.setPreferredSize(buttonSize);
+        forgotPasswordButton.setPreferredSize(buttonSize);
+        recruitmentButton.setPreferredSize(buttonSize);
+        calendarButton.setPreferredSize(buttonSize);
+
+        // Frame settings
+        frame.setLayout(new GridBagLayout()); // Centers the panel inside the frame
+        frame.add(panel);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(500, 500);
+        frame.setLocationRelativeTo(null); // Centers the window on the screen
+        frame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        new EmployeeManagementSystemGUI();
+    }
+}
