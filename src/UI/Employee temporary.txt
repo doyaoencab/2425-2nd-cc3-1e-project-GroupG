@@ -1,0 +1,124 @@
+package com.mycompany.employeemanagementsystemgui;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+public class EmployeeDashboard extends JFrame {
+    private JTable employeeTable;
+    private DefaultTableModel tableModel;
+    private JTextField searchField;
+
+    public EmployeeDashboard() {
+        setTitle("Employee Management System");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLayout(new BorderLayout());
+
+        // Create the search bar
+        JPanel searchPanel = new JPanel();
+        searchField = new JTextField(20);
+        searchField.setText("Search ID / Name"); // Placeholder text
+        JButton searchButton = new JButton("Search");
+        searchPanel.add(searchField);
+        add(searchPanel, BorderLayout.NORTH);
+
+        // Create the employee table
+        String[] columnNames = {"ID No.", "Name", "DOB", "Department", "Actions"};
+        tableModel = new DefaultTableModel(columnNames, 0);
+        employeeTable = new JTable(tableModel);
+        employeeTable.setRowHeight(50);
+        add(new JScrollPane(employeeTable), BorderLayout.CENTER);
+
+        // Add action buttons
+        JButton addButton = new JButton("Add New Employee");
+        addButton.setBackground(Color.GREEN);
+        addButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                addEmployee();
+            }
+        });
+        searchPanel.add(addButton);
+
+        setVisible(true);
+    }
+
+    private void populateTable() {
+        // Removed default added employees
+    }
+
+    private JPanel createActionPanel() {
+        JPanel panel = new JPanel();
+        JButton viewButton = new JButton("View");
+        JButton editButton = new JButton("Edit");
+        JButton salaryButton = new JButton("Salary");
+        JButton leaveButton = new JButton("Leave");
+
+        editButton.setBackground(Color.YELLOW);
+        leaveButton.setBackground(Color.RED);
+
+        panel.add(viewButton);
+        panel.add(editButton);
+        panel.add(salaryButton);
+        panel.add(leaveButton);
+
+        // Add action listeners for buttons
+        viewButton.addActionListener(e -> {
+            // Code to view employee details
+        });
+        editButton.addActionListener(e -> {
+            // Code to edit employee data
+        });
+        leaveButton.addActionListener(e -> {
+            // Code to mark employee on leave
+        });
+
+        return panel;
+    }
+
+    private void addEmployee() {
+        JFrame addEmployeeFrame = new JFrame("Add Employee");
+        addEmployeeFrame.setSize(300, 300);
+        addEmployeeFrame.setLayout(new GridLayout(6, 2));
+
+        JTextField idField = new JTextField();
+        JTextField nameField = new JTextField();
+        JTextField dobField = new JTextField();
+        JTextField departmentField = new JTextField();
+        JButton addButton = new JButton("Add");
+        JButton cancelButton = new JButton("Cancel");
+
+        addEmployeeFrame.add(new JLabel("ID No.:"));
+        addEmployeeFrame.add(idField);
+        addEmployeeFrame.add(new JLabel("Name:"));
+        addEmployeeFrame.add(nameField);
+        addEmployeeFrame.add(new JLabel("DOB:"));
+        addEmployeeFrame.add(dobField);
+        addEmployeeFrame.add(new JLabel("Department:"));
+        addEmployeeFrame.add(departmentField);
+        addEmployeeFrame.add(addButton);
+        addEmployeeFrame.add(cancelButton);
+
+        addButton.addActionListener(e -> {
+            String id = idField.getText();
+            String name = nameField.getText();
+            String dob = dobField.getText();
+            String department = departmentField.getText();
+            tableModel.addRow(new Object[]{id, name, dob, department, createActionPanel()});
+            addEmployeeFrame.dispose();
+        });
+
+        cancelButton.addActionListener(e -> addEmployeeFrame.dispose());
+
+        addEmployeeFrame.setVisible(true);
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(EmployeeDashboard::new);
+    }
+}
+
+// In progress , not final still being edited
