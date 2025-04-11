@@ -1,0 +1,138 @@
+package com.mycompany.employeemanagementsystemgui;
+
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.*;
+import org.jdatepicker.impl.*;
+import java.util.Properties;
+
+public class LeaveManagement extends JFrame {
+    private DefaultTableModel tableModel;
+    private JTable leaveTable;
+
+    public LeaveManagement() {
+        setTitle("Leave Management");
+        setSize(500, 500);
+        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+
+        tableModel = new DefaultTableModel(new String[]{"Employee Name", "Leave Type", "Start Date", "End Date"}, 0);
+        leaveTable = new JTable(tableModel);
+        add(new JScrollPane(leaveTable), BorderLayout.CENTER);
+
+        JPanel buttonPanel = new JPanel();
+        JButton addLeaveBtn = new JButton("Add Leave");
+        JButton deleteLeaveBtn = new JButton("Delete Leave");
+        buttonPanel.add(addLeaveBtn);
+        buttonPanel.add(deleteLeaveBtn);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        addLeaveBtn.addActionListener(e -> openAddLeaveFrame());
+        deleteLeaveBtn.addActionListener(e -> {
+            int row = leaveTable.getSelectedRow();
+            if (row >= 0) {
+                int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this leave entry?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+                if (confirm == JOptionPane.YES_OPTION) {
+                    tableModel.removeRow(row);
+                    JOptionPane.showMessageDialog(this, "Leave entry deleted.");
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Please select a leave entry to delete.");
+            }
+        });
+    }
+
+    private void openAddLeaveFrame() {
+        JFrame addFrame = new JFrame("Add Leave");
+        addFrame.setSize(400, 300);
+        addFrame.setLocationRelativeTo(this);
+
+        // Use BoxLayout for better alignment
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        
+        // Create a panel for each row of labels and components
+        JPanel namePanel = new JPanel();
+        namePanel.add(new JLabel("Employee Name:"));
+        JTextField nameField = new JTextField(15);
+        namePanel.add(nameField);
+
+        JPanel leaveTypePanel = new JPanel();
+        leaveTypePanel.add(new JLabel("Leave Type:"));
+        String[] leaveTypes = {"Vacation", "Sick Leave", "Maternity", "Other"};
+        JComboBox<String> leaveTypeBox = new JComboBox<>(leaveTypes);
+        leaveTypePanel.add(leaveTypeBox);
+
+        // Calendar date picker setup
+        UtilDateModel startModel = new UtilDateModel();
+        UtilDateModel endModel = new UtilDateModel();
+        Properties p = new Properties();
+        p.put("text.today", "Today");
+        p.put("text.month", "Month");
+        p.put("text.year", "Year");
+
+        JDatePanelImpl startDatePanel = new JDatePanelImpl(startModel, p);
+        JDatePanelImpl endDatePanel = new JDatePanelImpl(endModel, p);
+
+        JDatePickerImpl startDatePicker = new JDatePickerImpl(startDatePanel, new DateLabelFormatter());
+        JDatePickerImpl endDatePicker = new JDatePickerImpl(endDatePanel, new DateLabelFormatter());
+
+        JPanel startDatePanelWrapper = new JPanel();
+        startDatePanelWrapper.add(new JLabel("Start Date:"));
+        startDatePanelWrapper.add(startDatePicker);
+
+        JPanel endDatePanelWrapper = new JPanel();
+        endDatePanelWrapper.add(new JLabel("End Date:"));
+        endDatePanelWrapper.add(endDatePicker);
+
+        // Save button
+        JButton saveButton = new JButton("Save");
+
+        panel.add(namePanel);
+        panel.add(leaveTypePanel);
+        panel.add(startDatePanelWrapper);
+        panel.add(endDatePanelWrapper);
+        panel.add(saveButton);
+
+        addFrame.add(panel);
+        addFrame.setVisible(true);
+
+        saveButton.addActionListener(e -> {
+            String name = nameField.getText();
+            String leaveType = (String) leaveTypeBox.getSelectedItem();
+            String startDate = startDatePicker.getJFormattedTextField().getText();
+            String endDate = endDatePicker.getJFormattedTextField().getText();
+
+            if (!name.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()) {
+                tableModel.addRow(new Object[]{name, leaveType, startDate, endDate});
+                addFrame.dispose();
+            } else {
+                JOptionPane.showMessageDialog(addFrame, "Please fill in all fields.");
+            }
+        });
+    }
+
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> new LeaveManagement().setVisible(true));
+    }
+}
+
+// Formatter for the date picker
+class DateLabelFormatter extends JFormattedTextField.AbstractFormatter {
+    private final java.text.SimpleDateFormat dateFormatter = new java.text.SimpleDateFormat("yyyy-MM-dd");
+
+    @Override
+    public Object stringToValue(String text) throws java.text.ParseException {
+        return dateFormatter.parseObject(text);
+    }
+
+    @Override
+    public String valueToString(Object value) {
+        if (value != null) {
+            java.util.Calendar cal = (java.util.Calendar) value;
+            return dateFormatter.format(cal.getTime());
+        }
+        return "";
+    }
+}
