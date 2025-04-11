@@ -11,36 +11,28 @@ public class Dashboard {
     private JButton employeeManagementButton, leaveManagementButton, payrollManagementButton, recruitmentButton, calendarButton;
 
     public Dashboard() {
-        // Create the frame and panel
         frame = new JFrame("Dashboard");
-        panel = new JPanel(new GridBagLayout());  // Use GridBagLayout for better control of layout
+        panel = new JPanel(new GridBagLayout());
         GridBagConstraints grid = new GridBagConstraints();
 
-        // GridBagLayout settings
-        grid.insets = new Insets(10, 10, 10, 10);  // Add padding between components
-        grid.anchor = GridBagConstraints.CENTER;  // Center components
+        grid.insets = new Insets(10, 10, 10, 10);
+        grid.anchor = GridBagConstraints.CENTER;
 
-        // Create title label with the original font
         JLabel title = new JLabel("Welcome to Employee Management System!", JLabel.CENTER);
-        title.setFont(new Font("Serif", Font.BOLD, 24));  // Keep the original title font
-        title.setForeground(Color.BLACK);  // Optional: to make sure the text is clear
+        title.setFont(new Font("Serif", Font.BOLD, 24));
+        title.setForeground(Color.BLACK);
+        title.setPreferredSize(new Dimension(500, 100));
+        title.setHorizontalAlignment(SwingConstants.CENTER);
 
-        // Title Label settings - this will ensure the label has enough space
-        title.setPreferredSize(new Dimension(400, 100)); // Ensures the title has enough height
-        title.setHorizontalAlignment(SwingConstants.CENTER); // Center the text
+        grid.gridx = 0; grid.gridy = 0; grid.gridwidth = 2;
+        panel.add(title, grid);
 
-        // Title panel to hold the title label
-        JPanel titlePanel = new JPanel(new BorderLayout());
-        titlePanel.add(title, BorderLayout.CENTER);
-
-        // Buttons for various sections of the system
         employeeManagementButton = new JButton("Employee Management");
         leaveManagementButton = new JButton("Leave Management");
         payrollManagementButton = new JButton("Payroll Management");
         recruitmentButton = new JButton("Recruitment");
         calendarButton = new JButton("Calendar");
 
-        // Set the font for each button explicitly to SansSerif
         Font buttonFont = new Font("SansSerif", Font.BOLD, 12);
         employeeManagementButton.setFont(buttonFont);
         leaveManagementButton.setFont(buttonFont);
@@ -48,7 +40,6 @@ public class Dashboard {
         recruitmentButton.setFont(buttonFont);
         calendarButton.setFont(buttonFont);
 
-        // Add action listeners for buttons
         employeeManagementButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -84,11 +75,10 @@ public class Dashboard {
             }
         });
 
-        // Add buttons to the panel using GridBagConstraints
-        grid.gridx = 0; grid.gridy = 1; grid.gridwidth = 2;
+        grid.gridy = 1; grid.gridwidth = 2;
         panel.add(employeeManagementButton, grid);
 
-        grid.gridy = 2;
+        grid.gridy = 2; grid.gridwidth = 2;
         panel.add(leaveManagementButton, grid);
 
         grid.gridy = 3;
@@ -100,23 +90,22 @@ public class Dashboard {
         grid.gridy = 5;
         panel.add(calendarButton, grid);
 
-        // Set button sizes (same size as your first code)
+        // Set uniform button sizes
         setButtonSizes(employeeManagementButton, leaveManagementButton, payrollManagementButton, recruitmentButton, calendarButton);
 
-        // Set up the frame
-        frame.add(titlePanel, BorderLayout.NORTH);  // Title at the top
-        frame.add(panel, BorderLayout.CENTER);  // Buttons at the center
+        frame.add(panel, BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 500);  // Set window size
-        frame.setLocationRelativeTo(null);  // Center window
+        frame.setSize(500, 500);
+        frame.setLocationRelativeTo(null);
         frame.setVisible(true);
     }
 
-    // Helper method to set button sizes (same as your first code)
     private void setButtonSizes(JButton... buttons) {
-        Dimension buttonSize = new Dimension(200, 30);  // Matching the size from your first code
+        Dimension buttonSize = new Dimension(200, 30);  // Adjusted size for uniformity
         for (JButton button : buttons) {
             button.setPreferredSize(buttonSize);
+            button.setMinimumSize(buttonSize);
+            button.setMaximumSize(buttonSize);
         }
     }
 
