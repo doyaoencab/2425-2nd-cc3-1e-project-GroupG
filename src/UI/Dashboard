@@ -8,47 +8,91 @@ import java.awt.event.ActionListener;
 public class Dashboard {
     private JFrame frame;
     private JPanel panel;
-    private JButton loginButton, registerButton, forgotPasswordButton, recruitmentButton, calendarButton;
+    private JButton employeeManagementButton, leaveManagementButton, payrollManagementButton, recruitmentButton, calendarButton;
 
     public Dashboard() {
+        // Create the frame and panel
         frame = new JFrame("Dashboard");
-        panel = new JPanel(new GridBagLayout());
+        panel = new JPanel(new GridBagLayout());  // Use GridBagLayout for better control of layout
         GridBagConstraints grid = new GridBagConstraints();
-        
-        grid.insets = new Insets(10, 10, 10, 10);
-        grid.anchor = GridBagConstraints.CENTER;
 
-        JLabel title = new JLabel("Welcome!");
-        title.setFont(new Font("Serif", Font.BOLD, 24));
+        // GridBagLayout settings
+        grid.insets = new Insets(10, 10, 10, 10);  // Add padding between components
+        grid.anchor = GridBagConstraints.CENTER;  // Center components
 
-        loginButton = new JButton("Employee Management");
-        registerButton = new JButton("Leave Management");
-        forgotPasswordButton = new JButton("Payroll Management");
+        // Create title label with the original font
+        JLabel title = new JLabel("Welcome to Employee Management System!", JLabel.CENTER);
+        title.setFont(new Font("Serif", Font.BOLD, 24));  // Keep the original title font
+        title.setForeground(Color.BLACK);  // Optional: to make sure the text is clear
+
+        // Title Label settings - this will ensure the label has enough space
+        title.setPreferredSize(new Dimension(400, 100)); // Ensures the title has enough height
+        title.setHorizontalAlignment(SwingConstants.CENTER); // Center the text
+
+        // Title panel to hold the title label
+        JPanel titlePanel = new JPanel(new BorderLayout());
+        titlePanel.add(title, BorderLayout.CENTER);
+
+        // Buttons for various sections of the system
+        employeeManagementButton = new JButton("Employee Management");
+        leaveManagementButton = new JButton("Leave Management");
+        payrollManagementButton = new JButton("Payroll Management");
         recruitmentButton = new JButton("Recruitment");
         calendarButton = new JButton("Calendar");
 
-        // Removed action listeners to prevent button actions
-        // loginButton.addActionListener(new ActionListener() {
-        //     @Override
-        //     public void actionPerformed(ActionEvent e) {
-        //         Dashboard employeeDashboard = new Dashboard();
-        //         employeeDashboard.setVisible(true);
-        //         frame.setVisible(false);
-        //     }
-        // });
+        // Set the font for each button explicitly to SansSerif
+        Font buttonFont = new Font("SansSerif", Font.BOLD, 12);
+        employeeManagementButton.setFont(buttonFont);
+        leaveManagementButton.setFont(buttonFont);
+        payrollManagementButton.setFont(buttonFont);
+        recruitmentButton.setFont(buttonFont);
+        calendarButton.setFont(buttonFont);
 
-        grid.gridx = 0; grid.gridy = 0; grid.gridwidth = 2;
-        panel.add(title, grid);
+        // Add action listeners for buttons
+        employeeManagementButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(frame, "Opening Employee Management");
+            }
+        });
 
-        grid.gridwidth = 2; 
-        grid.gridx = 0; grid.gridy = 1; grid.anchor = GridBagConstraints.CENTER;
-        panel.add(loginButton, grid);
-        
+        leaveManagementButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(frame, "Opening Leave Management");
+            }
+        });
+
+        payrollManagementButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(frame, "Opening Payroll Management");
+            }
+        });
+
+        recruitmentButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(frame, "Opening Recruitment");
+            }
+        });
+
+        calendarButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(frame, "Opening Calendar");
+            }
+        });
+
+        // Add buttons to the panel using GridBagConstraints
+        grid.gridx = 0; grid.gridy = 1; grid.gridwidth = 2;
+        panel.add(employeeManagementButton, grid);
+
         grid.gridy = 2;
-        panel.add(registerButton, grid);
+        panel.add(leaveManagementButton, grid);
 
         grid.gridy = 3;
-        panel.add(forgotPasswordButton, grid);
+        panel.add(payrollManagementButton, grid);
 
         grid.gridy = 4;
         panel.add(recruitmentButton, grid);
@@ -56,26 +100,27 @@ public class Dashboard {
         grid.gridy = 5;
         panel.add(calendarButton, grid);
 
-        Dimension buttonSize = new Dimension(200, 30);
-        loginButton.setPreferredSize(buttonSize);
-        registerButton.setPreferredSize(buttonSize);
-        forgotPasswordButton.setPreferredSize(buttonSize);
-        recruitmentButton.setPreferredSize(buttonSize);
-        calendarButton.setPreferredSize(buttonSize);
+        // Set button sizes (same size as your first code)
+        setButtonSizes(employeeManagementButton, leaveManagementButton, payrollManagementButton, recruitmentButton, calendarButton);
 
-        frame.setLayout(new GridBagLayout());
-        frame.add(panel);
+        // Set up the frame
+        frame.add(titlePanel, BorderLayout.NORTH);  // Title at the top
+        frame.add(panel, BorderLayout.CENTER);  // Buttons at the center
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 500);
-        frame.setLocationRelativeTo(null);
+        frame.setSize(500, 500);  // Set window size
+        frame.setLocationRelativeTo(null);  // Center window
         frame.setVisible(true);
+    }
+
+    // Helper method to set button sizes (same as your first code)
+    private void setButtonSizes(JButton... buttons) {
+        Dimension buttonSize = new Dimension(200, 30);  // Matching the size from your first code
+        for (JButton button : buttons) {
+            button.setPreferredSize(buttonSize);
+        }
     }
 
     public static void main(String[] args) {
         new Dashboard();
-    }
-
-    private void setVisible(boolean b) {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
     }
 }
