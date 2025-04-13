@@ -2,25 +2,30 @@ package com.mycompany.employeemanagementsystemgui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-public class CalendarFrame {
+public class CalendarFrame extends JFrame {
     private static int currentMonth = 0; // January = 0
     private static final int YEAR = 2025;
-    private static Map<String, String> events = new HashMap<>(); // To store events
-    private static int selectedDay = -1; // To track selected day
-    private static JLabel selectedLabel = null; // To store reference to the selected date's JLabel
+    private static Map<String, String> events = new HashMap<>(); // Store events as day-month
+    private static int selectedDay = -1; // Selected day
+    private static JLabel selectedLabel = null; // Reference to selected date label
+    private Map<String, JLabel> dayLabels = new HashMap<>(); // Map to track day labels for highlighting
+    private final String DATABASE_FILE = "calendarEvents.json"; // JSON file for persistent storage
 
-    public static void main(String[] args) {
-        JFrame frame = new JFrame("Calendar");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 550);
-        frame.setLocationRelativeTo(null);
-        frame.setLayout(new BorderLayout());
+    public CalendarFrame() {
+        setTitle("Calendar");
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
+        setSize(500, 550);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
 
         JLabel monthLabel = new JLabel("", SwingConstants.CENTER);
         monthLabel.setFont(new Font("SansSerif", Font.BOLD, 18));
@@ -36,29 +41,29 @@ public class CalendarFrame {
         topPanel.add(monthLabel);
         topPanel.add(nextButton);
 
-        frame.add(topPanel, BorderLayout.NORTH);
-        frame.add(panel, BorderLayout.CENTER);
+        add(topPanel, BorderLayout.NORTH);
+        add(panel, BorderLayout.CENTER);
 
         JButton addEventButton = new JButton("Add Event");
-
         JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         bottomPanel.add(addEventButton);
+        add(bottomPanel, BorderLayout.SOUTH);
 
-        frame.add(bottomPanel, BorderLayout.SOUTH);
+        // Load events from JSON file
+        loadEvents();
 
         ActionListener updateCalendar = e -> {
             panel.removeAll();
+            dayLabels.clear(); // Clear previous day labels
             Calendar calendar = Calendar.getInstance();
             calendar.set(YEAR, currentMonth, 1);
 
-            // Set month label
             String[] monthNames = {
                 "January", "February", "March", "April", "May", "June",
                 "July", "August", "September", "October", "November", "December"
             };
             monthLabel.setText(monthNames[currentMonth] + " " + YEAR);
 
-            // Add day-of-week headers
             String[] days = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
             for (String day : days) {
                 JLabel label = new JLabel(day, SwingConstants.CENTER);
@@ -66,44 +71,61 @@ public class CalendarFrame {
                 panel.add(label);
             }
 
-            int firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK); // 1 = Sunday
+            int firstDayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
             int daysInMonth = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
 
-            // Add blank spaces before the first day
             for (int i = 1; i < firstDayOfWeek; i++) {
                 panel.add(new JLabel(""));
             }
 
-            // Add day numbers
             for (int day = 1; day <= daysInMonth; day++) {
                 JLabel label = new JLabel(String.valueOf(day), SwingConstants.CENTER);
                 label.setOpaque(true);
                 label.setBackground(Color.WHITE);
                 label.setBorder(BorderFactory.createLineBorder(Color.GRAY));
 
-                // If there is an event for this day, display it
-                if (events.containsKey(String.valueOf(day))) {
-                    label.setText(label.getText() + " - " + events.get(String.valueOf(day)));
+                String eventKey = day + "-" + currentMonth;
+                if (events.containsKey(eventKey)) {
+                    String eventDetails = events.get(eventKey);
+                    label.setText(label.getText() + " *");
+                    label.setToolTipText(eventDetails);
+                    label.setBackground(Color.RED); // Highlight day with event
                 }
 
                 final int dayOfMonth = day;
                 label.addMouseListener(new java.awt.event.MouseAdapter() {
                     public void mousePressed(java.awt.event.MouseEvent e) {
-                        // If another day was already selected, revert its color
                         if (selectedLabel != null) {
                             selectedLabel.setBackground(Color.WHITE);
+                            if (events.containsKey(selectedDay + "-" + currentMonth)) {
+                                selectedLabel.setBackground(Color.YELLOW); // Restore yellow for event days
+                            }
                         }
+                        selectedDay = dayOfMonth;
+                        selectedLabel = label;
+                        label.setBackground(Color.GRAY);
+                    }
 
-                        selectedDay = dayOfMonth; // Set selected day
-                        selectedLabel = label; // Store the reference to the selected label
-                        label.setBackground(Color.GRAY); // Highlight the selected day
+                    public void mouseClicked(java.awt.event.MouseEvent e) {
+                        if (e.getClickCount() == 2) {
+                            String eventKey = dayOfMonth + "-" + currentMonth;
+                            if (events.containsKey(eventKey)) {
+                                JOptionPane.showMessageDialog(CalendarFrame.this,
+                                        "Event for " + dayOfMonth + " " + monthLabel.getText() + ":\n" + events.get(eventKey),
+                                        "Event Details", JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(CalendarFrame.this,
+                                        "No event for this day.",
+                                        "Event Details", JOptionPane.INFORMATION_MESSAGE);
+                            }
+                        }
                     }
                 });
 
                 panel.add(label);
+                dayLabels.put(day + "-" + currentMonth, label); // Track day label for updates
             }
 
-            // Fill the rest of the grid
             int totalCells = 42;
             int filled = (firstDayOfWeek - 1) + daysInMonth;
             for (int i = filled; i < totalCells; i++) {
@@ -114,10 +136,8 @@ public class CalendarFrame {
             panel.repaint();
         };
 
-        // Initial calendar display
         updateCalendar.actionPerformed(null);
 
-        // Button actions
         prevButton.addActionListener(e -> {
             if (currentMonth > 0) {
                 currentMonth--;
@@ -132,51 +152,77 @@ public class CalendarFrame {
             }
         });
 
-        // Add Event Button ActionListener - opens dialog to enter event details
         addEventButton.addActionListener(e -> {
             if (selectedDay == -1) {
-                JOptionPane.showMessageDialog(frame, "Please select a day to add an event.", "Error", JOptionPane.ERROR_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Please select a day to add an event.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            // Create a new dialog to input event details
-            JDialog eventDialog = new JDialog(frame, "Add Event", true);
+            JDialog eventDialog = new JDialog(this, "Add Event", true);
             eventDialog.setSize(300, 200);
-            eventDialog.setLocationRelativeTo(frame);
+            eventDialog.setLocationRelativeTo(this);
 
             JPanel dialogPanel = new JPanel(new GridLayout(3, 2));
-
             JLabel dateLabel = new JLabel("Date: " + selectedDay + " " + monthLabel.getText().split(" ")[0]);
             JTextField eventField = new JTextField();
             JButton saveButton = new JButton("Save Event");
-            saveButton.setPreferredSize(new Dimension(100, 30)); // Set size of saveButton
+            saveButton.setPreferredSize(new Dimension(100, 30));
 
             dialogPanel.add(dateLabel);
-            dialogPanel.add(new JLabel()); // Empty label for layout
+            dialogPanel.add(new JLabel()); // empty space
             dialogPanel.add(new JLabel("Event Details:"));
             dialogPanel.add(eventField);
-            dialogPanel.add(saveButton);
 
             eventDialog.add(dialogPanel, BorderLayout.CENTER);
+
             JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
             buttonPanel.add(saveButton);
             eventDialog.add(buttonPanel, BorderLayout.SOUTH);
 
-            eventDialog.setVisible(true);
-
-            // Save event button
             saveButton.addActionListener(ev -> {
                 String eventDetails = eventField.getText();
                 if (eventDetails.isEmpty()) {
-                    JOptionPane.showMessageDialog(frame, "Please enter event details.", "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(this, "Please enter event details.", "Error", JOptionPane.ERROR_MESSAGE);
                 } else {
-                    events.put(String.valueOf(selectedDay), eventDetails);
+                    String eventKey = selectedDay + "-" + currentMonth;
+                    events.put(eventKey, eventDetails);
+
+                    if (dayLabels.containsKey(eventKey)) {
+                        JLabel dayLabel = dayLabels.get(eventKey);
+                        dayLabel.setBackground(Color.YELLOW); // Highlight day when event is added
+                        dayLabel.setToolTipText(eventDetails); // Update tooltip
+                    }
+
+                    saveEvents(); // Save events to JSON file
                     updateCalendar.actionPerformed(null);
-                    eventDialog.dispose(); // Close the dialog after saving
+                    eventDialog.dispose();
                 }
             });
-        });
 
-        frame.setVisible(true);
+            eventDialog.setVisible(true);
+        });
+    }
+
+    private void loadEvents() {
+        try {
+            Gson gson = new Gson();
+            FileReader reader = new FileReader(DATABASE_FILE);
+            events = gson.fromJson(reader, new TypeToken<Map<String, String>>() {}.getType());
+            reader.close();
+        } catch (Exception e) {
+            //System.out.println("No existing events found. Starting fresh.");
+            events = new HashMap<>();
+        }
+    }
+
+    private void saveEvents() {
+        try {
+            Gson gson = new Gson();
+            FileWriter writer = new FileWriter(DATABASE_FILE);
+            gson.toJson(events, writer);
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
