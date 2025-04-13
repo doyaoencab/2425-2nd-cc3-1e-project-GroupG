@@ -1,160 +1,235 @@
-package com.mycompany.employeemanagementsystemgui;
+package com.mycompany.employeemanagementsystemgui; 
+// Declares the package for this class, organizing related classes together.
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
+import javax.swing.*; 
+import java.awt.*; 
+import java.io.FileReader; 
+import java.io.FileWriter; 
+import java.util.HashMap; 
+import java.util.Map; 
+import com.google.gson.Gson; 
+import com.google.gson.reflect.TypeToken; 
+import java.lang.reflect.Type; 
+// Imports required libraries for GUI creation, file handling, data structures, JSON processing, and type reflection.
 
-public class Login {
-    private JFrame frame;
-    private JPanel panel;
-    private JTextField usernameField;
-    private JPasswordField passwordField;
-    private JButton loginButton, registerButton, forgotPasswordButton;
+public class Login { 
+    // Defines the Login class which represents the login GUI and functionality.
 
-    // Simulated database for demo purposes
-    private HashMap<String, String> userDatabase = new HashMap<>();
+    private JFrame frame; 
+    private JPanel panel; 
+    private JTextField usernameField; 
+    private JPasswordField passwordField; 
+    private JButton loginButton, registerButton, forgotPasswordButton; 
+    // Declares GUI components as private fields.
 
-    public Login() {
-        frame = new JFrame("Employee Management System");
-        panel = new JPanel(new GridBagLayout());
-        GridBagConstraints grid = new GridBagConstraints();
+    private final String DATABASE_FILE = "userData.json"; 
+    // Specifies the name of the JSON file for storing user data.
 
-        grid.insets = new Insets(10, 10, 10, 10);
-        grid.anchor = GridBagConstraints.CENTER;
+    private Map<String, String> userDatabase; 
+    // Declares a map to hold username-password pairs.
 
-        JLabel title = new JLabel("Employee Management System");
-        title.setFont(new Font("Serif", Font.BOLD, 24));
+    public Login() { 
+        // Constructor to initialize the login functionality.
+        userDatabase = loadDatabase(); 
+        // Loads the user database from the JSON file.
 
-        JLabel usernameLabel = new JLabel("Username:");
-        usernameField = new JTextField(20);
-        JLabel passwordLabel = new JLabel("Password:");
-        passwordField = new JPasswordField(20);
+        frame = new JFrame("Employee Management System"); 
+        // Creates the main JFrame.
 
-        loginButton = new JButton("Login");
-        registerButton = new JButton("Register");
-        forgotPasswordButton = new JButton("Forgot Password?");
+        panel = new JPanel(new GridBagLayout()); 
+        // Creates the JPanel with a GridBagLayout for flexible positioning of components.
 
-        // Add components to panel
-        grid.gridx = 0; grid.gridy = 0; grid.gridwidth = 2;
-        panel.add(title, grid);
+        GridBagConstraints grid = new GridBagConstraints(); 
+        // Defines constraints for positioning components within the grid.
 
-        grid.gridwidth = 1;
+        grid.insets = new Insets(10, 10, 10, 10); 
+        grid.anchor = GridBagConstraints.CENTER; 
+        // Sets spacing and alignment for grid layout.
 
-        grid.gridx = 0; grid.gridy = 1; grid.anchor = GridBagConstraints.EAST;
-        panel.add(usernameLabel, grid);
-        grid.gridx = 1; grid.anchor = GridBagConstraints.WEST;
-        panel.add(usernameField, grid);
+        JLabel title = new JLabel("Employee Management System"); 
+        title.setFont(new Font("Serif", Font.BOLD, 24)); 
+        // Creates a title label and sets its font style.
 
-        grid.gridx = 0; grid.gridy = 2; grid.anchor = GridBagConstraints.EAST;
-        panel.add(passwordLabel, grid);
-        grid.gridx = 1; grid.anchor = GridBagConstraints.WEST;
-        panel.add(passwordField, grid);
+        // Creates labels, text fields, and buttons for user input and actions.
+        JLabel usernameLabel = new JLabel("Username:"); 
+        usernameField = new JTextField(20); 
+        JLabel passwordLabel = new JLabel("Password:"); 
+        passwordField = new JPasswordField(20); 
+
+        loginButton = new JButton("Login"); 
+        registerButton = new JButton("Register"); 
+        forgotPasswordButton = new JButton("Forgot Password?"); 
+
+        // Adds components to the panel using grid constraints.
+        grid.gridx = 0; grid.gridy = 0; grid.gridwidth = 2; 
+        panel.add(title, grid); 
+
+        grid.gridwidth = 1; 
+
+        grid.gridx = 0; grid.gridy = 1; grid.anchor = GridBagConstraints.EAST; 
+        panel.add(usernameLabel, grid); 
+        grid.gridx = 1; grid.anchor = GridBagConstraints.WEST; 
+        panel.add(usernameField, grid); 
+
+        grid.gridx = 0; grid.gridy = 2; grid.anchor = GridBagConstraints.EAST; 
+        panel.add(passwordLabel, grid); 
+        grid.gridx = 1; grid.anchor = GridBagConstraints.WEST; 
+        panel.add(passwordField, grid); 
 
         grid.gridwidth = 2; 
-        grid.gridx = 0; grid.gridy = 3; grid.anchor = GridBagConstraints.CENTER;
-        panel.add(loginButton, grid);
+        grid.gridx = 0; grid.gridy = 3; grid.anchor = GridBagConstraints.CENTER; 
+        panel.add(loginButton, grid); 
 
-        grid.gridy = 4;
-        panel.add(registerButton, grid);
+        grid.gridy = 4; 
+        panel.add(registerButton, grid); 
 
-        grid.gridy = 5;
-        panel.add(forgotPasswordButton, grid);
+        grid.gridy = 5; 
+        panel.add(forgotPasswordButton, grid); 
 
-        // Login action
-        loginButton.addActionListener(e -> {
-            String username = usernameField.getText().trim();
-            String password = new String(passwordField.getPassword()).trim();
+        // Adds action listeners for button functionality.
+        loginButton.addActionListener(e -> { 
+            String username = usernameField.getText().trim(); 
+            String password = new String(passwordField.getPassword()).trim(); 
 
-            if (username.isEmpty() || password.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "All fields must be filled!", "Error", JOptionPane.ERROR_MESSAGE);
-                return;
+            if (username.isEmpty() || password.isEmpty()) { 
+                JOptionPane.showMessageDialog(frame, "All fields must be filled!", "Error", JOptionPane.ERROR_MESSAGE); 
+                return; 
             }
 
-            if (!userDatabase.containsKey(username)) {
-                JOptionPane.showMessageDialog(frame, "Username not found!", "Login Failed", JOptionPane.ERROR_MESSAGE);
-            } else if (!userDatabase.get(username).equals(password)) {
-                JOptionPane.showMessageDialog(frame, "Incorrect password!", "Login Failed", JOptionPane.ERROR_MESSAGE);
-            } else {
-                JOptionPane.showMessageDialog(frame, "Login successful!", "Welcome", JOptionPane.INFORMATION_MESSAGE);
-                // Example: Proceed to dashboard (if you want to open another frame)
-                // new Dashboard(); frame.dispose();
+            if (!userDatabase.containsKey(username)) { 
+                JOptionPane.showMessageDialog(frame, "Username not found!", "Login Failed", JOptionPane.ERROR_MESSAGE); 
+            } else if (!userDatabase.get(username).equals(password)) { 
+                JOptionPane.showMessageDialog(frame, "Incorrect password!", "Login Failed", JOptionPane.ERROR_MESSAGE); 
+            } else { 
+                JOptionPane.showMessageDialog(frame, "Login successful!", "Welcome", JOptionPane.INFORMATION_MESSAGE); 
+                new Dashboard(); 
+                frame.dispose(); 
             }
-        });
+        }); 
 
-        registerButton.addActionListener(e -> showRegisterFrame());
+        registerButton.addActionListener(e -> showRegisterFrame()); 
+        forgotPasswordButton.addActionListener(e -> handleForgotPassword()); 
 
-        frame.setLayout(new GridBagLayout());
-        frame.add(panel);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(500, 500);
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+        frame.setLayout(new GridBagLayout()); 
+        frame.add(panel); 
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); 
+        frame.setSize(500, 500); 
+        frame.setLocationRelativeTo(null); 
+        frame.setVisible(true); 
     }
 
-    private void showRegisterFrame() {
-        JFrame registerFrame = new JFrame("Register");
-        JPanel registerPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints grid = new GridBagConstraints();
+    private void handleForgotPassword() { 
+        // Handles the "Forgot Password" functionality.
+        String username = JOptionPane.showInputDialog(frame, "Enter your username:", "Forgot Password", JOptionPane.QUESTION_MESSAGE); 
 
-        grid.insets = new Insets(10, 10, 10, 10);
-        grid.anchor = GridBagConstraints.CENTER;
-
-        JLabel title = new JLabel("Register a New Account");
-        title.setFont(new Font("Serif", Font.BOLD, 24));
-
-        JLabel usernameLabel = new JLabel("Username:");
-        JTextField newUserField = new JTextField(20);
-        JLabel passwordLabel = new JLabel("Password:");
-        JPasswordField newPassField = new JPasswordField(20);
-        JButton registerButton = new JButton("Register");
-        JButton cancelButton = new JButton("Cancel");
-
-        grid.gridx = 0; grid.gridy = 0; grid.gridwidth = 2;
-        registerPanel.add(title, grid);
-        grid.gridwidth = 1;
-
-        grid.gridx = 0; grid.gridy = 1; grid.anchor = GridBagConstraints.EAST;
-        registerPanel.add(usernameLabel, grid);
-        grid.gridx = 1; grid.anchor = GridBagConstraints.WEST;
-        registerPanel.add(newUserField, grid);
-
-        grid.gridx = 0; grid.gridy = 2; grid.anchor = GridBagConstraints.EAST;
-        registerPanel.add(passwordLabel, grid);
-        grid.gridx = 1; grid.anchor = GridBagConstraints.WEST;
-        registerPanel.add(newPassField, grid);
-
-        grid.gridx = 0; grid.gridy = 3; grid.gridwidth = 2; grid.anchor = GridBagConstraints.CENTER;
-        registerPanel.add(registerButton, grid);
-
-        grid.gridy = 4;
-        registerPanel.add(cancelButton, grid);
-
-        cancelButton.addActionListener(e -> registerFrame.dispose());
-
-        registerButton.addActionListener(e -> {
-            String newUser = newUserField.getText().trim();
-            String newPass = new String(newPassField.getPassword()).trim();
-
-            if (newUser.isEmpty() || newPass.isEmpty()) {
-                JOptionPane.showMessageDialog(registerFrame, "All fields must be filled in!", "Error", JOptionPane.ERROR_MESSAGE);
-            } else if (userDatabase.containsKey(newUser)) {
-                JOptionPane.showMessageDialog(registerFrame, "Username already exists!", "Error", JOptionPane.ERROR_MESSAGE);
-            } else {
-                userDatabase.put(newUser, newPass);
-                JOptionPane.showMessageDialog(registerFrame, "Registered Successfully!");
-                registerFrame.dispose();
+        if (username != null && !username.trim().isEmpty()) { 
+            if (userDatabase.containsKey(username.trim())) { 
+                String password = userDatabase.get(username.trim()); 
+                JOptionPane.showMessageDialog(frame, "Your password is: " + password, "Password Recovery", JOptionPane.INFORMATION_MESSAGE); 
+            } else { 
+                JOptionPane.showMessageDialog(frame, "Username not found!", "Error", JOptionPane.ERROR_MESSAGE); 
             }
-        });
-
-        registerFrame.add(registerPanel);
-        registerFrame.setSize(500, 500);
-        registerFrame.setLocationRelativeTo(null);
-        registerFrame.setVisible(true);
+        } else { 
+            JOptionPane.showMessageDialog(frame, "You must enter a username!", "Error", JOptionPane.ERROR_MESSAGE); 
+        }
     }
 
-    public static void main(String[] args) {
-        new Login();
+    private void showRegisterFrame() { 
+        // Displays the registration form for new accounts.
+        JFrame registerFrame = new JFrame("Register"); 
+        JPanel registerPanel = new JPanel(new GridBagLayout()); 
+        GridBagConstraints grid = new GridBagConstraints(); 
+
+        grid.insets = new Insets(10, 10, 10, 10); 
+        grid.anchor = GridBagConstraints.CENTER; 
+
+        JLabel title = new JLabel("Register a New Account"); 
+        title.setFont(new Font("Serif", Font.BOLD, 24)); 
+
+        JLabel usernameLabel = new JLabel("Username:"); 
+        JTextField newUserField = new JTextField(20); 
+        JLabel passwordLabel = new JLabel("Password:"); 
+        JPasswordField newPassField = new JPasswordField(20); 
+        JButton registerButton = new JButton("Register"); 
+        JButton cancelButton = new JButton("Cancel"); 
+
+        grid.gridx = 0; grid.gridy = 0; grid.gridwidth = 2; 
+        registerPanel.add(title, grid); 
+
+        grid.gridwidth = 1; 
+        grid.gridx = 0; grid.gridy = 1; grid.anchor = GridBagConstraints.EAST; 
+        registerPanel.add(usernameLabel, grid); 
+        grid.gridx = 1; grid.anchor = GridBagConstraints.WEST; 
+        registerPanel.add(newUserField, grid); 
+
+        grid.gridx = 0; grid.gridy = 2; grid.anchor = GridBagConstraints.EAST; 
+        registerPanel.add(passwordLabel, grid); 
+        grid.gridx = 1; grid.anchor = GridBagConstraints.WEST; 
+        registerPanel.add(newPassField, grid); 
+
+        grid.gridx = 0; grid.gridy = 3; grid.gridwidth = 2; grid.anchor = GridBagConstraints.CENTER; 
+        registerPanel.add(registerButton, grid); 
+
+        grid.gridy = 4; 
+        registerPanel.add(cancelButton, grid); 
+
+        cancelButton.addActionListener(e -> registerFrame.dispose()); 
+
+        registerButton.addActionListener(e -> { 
+            String newUser = newUserField.getText().trim(); 
+            String newPass = new String(newPassField.getPassword()).trim(); 
+
+            if (newUser.isEmpty() || newPass.isEmpty()) { 
+                JOptionPane.showMessageDialog(registerFrame, "All fields must be filled in!", "Error", JOptionPane.ERROR_MESSAGE); 
+            } else if (userDatabase.containsKey(newUser)) { 
+                JOptionPane.showMessageDialog(registerFrame, "Username already exists!", "Error", JOptionPane.ERROR_MESSAGE); 
+            } else { 
+                userDatabase.put(newUser, newPass); 
+                saveDatabase(userDatabase); 
+                JOptionPane.showMessageDialog(registerFrame, "Registered Successfully!"); 
+                registerFrame.dispose(); 
+            }
+        }); 
+
+        registerFrame.add(registerPanel); 
+        registerFrame.setSize(500, 500); 
+        registerFrame.setLocationRelativeTo(null); 
+        registerFrame.setVisible(true); 
+    }
+
+    private Map<String, String> loadDatabase() { 
+        // Loads user data from the JSON file.
+        try { 
+            Gson gson = new Gson(); 
+            FileReader reader = new FileReader(DATABASE_FILE); 
+            Type type = new TypeToken<Map<String, String>>(){}.getType(); 
+            return gson.fromJson(reader, type); 
+        } catch (Exception e) { 
+            try (FileWriter writer = new FileWriter(DATABASE_FILE)) { 
+                writer.write("{}"); 
+            } catch (Exception ex) { 
+                ex.printStackTrace(); 
+            }
+            return new HashMap<>(); 
+        }
+    }
+
+    private void saveDatabase(Map<String, String> database) { 
+        // Saves the user data to the JSON file.
+        try { 
+            Gson gson = new Gson(); 
+            FileWriter writer = new FileWriter(DATABASE_FILE); 
+            gson.toJson(database, writer); 
+            writer.close(); 
+            // Closes the FileWriter to ensure data is saved properly.
+        } catch (Exception e) { 
+            e.printStackTrace(); 
+            // Prints stack trace to help debug any errors during saving.
+        } 
+    }
+
+    public static void main(String[] args) { 
+        new Login(); 
+        // Entry point of the program, initializes the Login class to show the login GUI.
     }
 }
