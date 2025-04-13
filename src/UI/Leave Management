@@ -3,44 +3,47 @@ package com.mycompany.employeemanagementsystemgui;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
-import org.jdatepicker.impl.*;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.jdatepicker.impl.JDatePickerImpl;
+import org.jdatepicker.impl.UtilDateModel;
+import org.jdatepicker.impl.JDatePanelImpl;
 import java.util.Properties;
 
 public class LeaveManagement extends JFrame {
     private DefaultTableModel tableModel;
     private JTable leaveTable;
+    private final String DATABASE_FILE = "leaveHistory.json"; // File to store leave history
 
     public LeaveManagement() {
         setTitle("Leave Management");
         setSize(500, 500);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE); // Only closes this frame
         setLocationRelativeTo(null);
 
         tableModel = new DefaultTableModel(new String[]{"Employee Name", "Leave Type", "Start Date", "End Date"}, 0);
         leaveTable = new JTable(tableModel);
         add(new JScrollPane(leaveTable), BorderLayout.CENTER);
 
+        // Load leave history from JSON
+        loadLeaveHistory();
+
         JPanel buttonPanel = new JPanel();
         JButton addLeaveBtn = new JButton("Add Leave");
         JButton deleteLeaveBtn = new JButton("Delete Leave");
+        JButton viewHistoryBtn = new JButton("View Leave History");
         buttonPanel.add(addLeaveBtn);
         buttonPanel.add(deleteLeaveBtn);
+        buttonPanel.add(viewHistoryBtn);
         add(buttonPanel, BorderLayout.SOUTH);
 
         addLeaveBtn.addActionListener(e -> openAddLeaveFrame());
-        deleteLeaveBtn.addActionListener(e -> {
-            int row = leaveTable.getSelectedRow();
-            if (row >= 0) {
-                int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this leave entry?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    tableModel.removeRow(row);
-                    JOptionPane.showMessageDialog(this, "Leave entry deleted.");
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Please select a leave entry to delete.");
-            }
-        });
+        deleteLeaveBtn.addActionListener(e -> deleteLeaveEntry());
+        viewHistoryBtn.addActionListener(e -> openLeaveHistoryFrame()); // New action to view history
     }
 
     private void openAddLeaveFrame() {
@@ -48,11 +51,9 @@ public class LeaveManagement extends JFrame {
         addFrame.setSize(400, 300);
         addFrame.setLocationRelativeTo(this);
 
-        // Use BoxLayout for better alignment
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         
-        // Create a panel for each row of labels and components
         JPanel namePanel = new JPanel();
         namePanel.add(new JLabel("Employee Name:"));
         JTextField nameField = new JTextField(15);
@@ -64,29 +65,30 @@ public class LeaveManagement extends JFrame {
         JComboBox<String> leaveTypeBox = new JComboBox<>(leaveTypes);
         leaveTypePanel.add(leaveTypeBox);
 
-        // Calendar date picker setup
-        UtilDateModel startModel = new UtilDateModel();
-        UtilDateModel endModel = new UtilDateModel();
+        // Properties for the date pickers
         Properties p = new Properties();
         p.put("text.today", "Today");
         p.put("text.month", "Month");
         p.put("text.year", "Year");
 
+        // Start Date Picker
+        UtilDateModel startModel = new UtilDateModel();
         JDatePanelImpl startDatePanel = new JDatePanelImpl(startModel, p);
-        JDatePanelImpl endDatePanel = new JDatePanelImpl(endModel, p);
-
         JDatePickerImpl startDatePicker = new JDatePickerImpl(startDatePanel, new DateLabelFormatter());
-        JDatePickerImpl endDatePicker = new JDatePickerImpl(endDatePanel, new DateLabelFormatter());
 
         JPanel startDatePanelWrapper = new JPanel();
         startDatePanelWrapper.add(new JLabel("Start Date:"));
         startDatePanelWrapper.add(startDatePicker);
 
+        // End Date Picker
+        UtilDateModel endModel = new UtilDateModel();
+        JDatePanelImpl endDatePanel = new JDatePanelImpl(endModel, p);
+        JDatePickerImpl endDatePicker = new JDatePickerImpl(endDatePanel, new DateLabelFormatter());
+
         JPanel endDatePanelWrapper = new JPanel();
         endDatePanelWrapper.add(new JLabel("End Date:"));
         endDatePanelWrapper.add(endDatePicker);
 
-        // Save button
         JButton saveButton = new JButton("Save");
 
         panel.add(namePanel);
@@ -99,18 +101,97 @@ public class LeaveManagement extends JFrame {
         addFrame.setVisible(true);
 
         saveButton.addActionListener(e -> {
-            String name = nameField.getText();
+            String name = nameField.getText().trim();
             String leaveType = (String) leaveTypeBox.getSelectedItem();
             String startDate = startDatePicker.getJFormattedTextField().getText();
             String endDate = endDatePicker.getJFormattedTextField().getText();
 
             if (!name.isEmpty() && !startDate.isEmpty() && !endDate.isEmpty()) {
                 tableModel.addRow(new Object[]{name, leaveType, startDate, endDate});
+                saveLeaveHistory(); // Save to JSON
                 addFrame.dispose();
             } else {
                 JOptionPane.showMessageDialog(addFrame, "Please fill in all fields.");
             }
         });
+    }
+
+    private void deleteLeaveEntry() {
+        int row = leaveTable.getSelectedRow();
+        if (row >= 0) {
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this leave entry?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                tableModel.removeRow(row);
+                saveLeaveHistory(); // Save changes to JSON
+                JOptionPane.showMessageDialog(this, "Leave entry deleted.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a leave entry to delete.");
+        }
+    }
+
+    private void openLeaveHistoryFrame() {
+        JFrame historyFrame = new JFrame("Leave History");
+        historyFrame.setSize(500, 500);
+        historyFrame.setLocationRelativeTo(this);
+
+        DefaultTableModel historyTableModel = new DefaultTableModel(new String[]{"Employee Name", "Leave Type", "Start Date", "End Date"}, 0);
+        JTable historyTable = new JTable(historyTableModel);
+        JScrollPane scrollPane = new JScrollPane(historyTable);
+        historyFrame.add(scrollPane);
+
+        try {
+            Gson gson = new Gson();
+            FileReader reader = new FileReader(DATABASE_FILE);
+            List<String[]> leaveHistory = gson.fromJson(reader, new TypeToken<List<String[]>>(){}.getType());
+            reader.close();
+
+            if (leaveHistory != null) {
+                for (String[] entry : leaveHistory) {
+                    historyTableModel.addRow(entry);
+                }
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(historyFrame, "No leave history available.");
+        }
+
+        historyFrame.setVisible(true);
+    }
+
+    private void loadLeaveHistory() {
+        try {
+            Gson gson = new Gson();
+            FileReader reader = new FileReader(DATABASE_FILE);
+            List<String[]> leaveHistory = gson.fromJson(reader, new TypeToken<List<String[]>>(){}.getType());
+            reader.close();
+
+            if (leaveHistory != null) {
+                for (String[] entry : leaveHistory) {
+                    tableModel.addRow(entry);
+                }
+            }
+        } catch (Exception e) {
+            //System.out.println("No leave history found, starting fresh.");
+        }
+    }
+
+    private void saveLeaveHistory() {
+        try {
+            Gson gson = new Gson();
+            FileWriter writer = new FileWriter(DATABASE_FILE);
+            List<String[]> leaveHistory = new ArrayList<>();
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                String name = (String) tableModel.getValueAt(i, 0);
+                String leaveType = (String) tableModel.getValueAt(i, 1);
+                String startDate = (String) tableModel.getValueAt(i, 2);
+                String endDate = (String) tableModel.getValueAt(i, 3);
+                leaveHistory.add(new String[]{name, leaveType, startDate, endDate});
+            }
+            gson.toJson(leaveHistory, writer);
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
