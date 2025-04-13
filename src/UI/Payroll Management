@@ -3,22 +3,31 @@ package com.mycompany.employeemanagementsystemgui;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.*;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.util.ArrayList;
+import java.util.List;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
 public class PayrollManagement extends JFrame {
     private DefaultTableModel tableModel;
     private JTable payrollTable;
+    private final String DATABASE_FILE = "payrollData.json"; // JSON file for payroll data
 
     public PayrollManagement() {
-        setTitle("Employee Payroll Management");
+        setTitle("Payroll Management");
         setSize(500, 500);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE); // Only closes this frame
         setLocationRelativeTo(null);
 
         // Table Model and Table
         tableModel = new DefaultTableModel(new String[]{"Employee Name", "Hours Worked", "Hourly Rate", "Total Pay"}, 0);
         payrollTable = new JTable(tableModel);
         add(new JScrollPane(payrollTable), BorderLayout.CENTER);
+
+        // Load payroll data from JSON
+        loadPayrollData();
 
         // Buttons
         JPanel buttonPanel = new JPanel();
@@ -30,18 +39,7 @@ public class PayrollManagement extends JFrame {
 
         // Button Actions
         addPayrollBtn.addActionListener(e -> openAddPayrollFrame());
-        deletePayrollBtn.addActionListener(e -> {
-            int row = payrollTable.getSelectedRow();
-            if (row >= 0) {
-                int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this payroll entry?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
-                if (confirm == JOptionPane.YES_OPTION) {
-                    tableModel.removeRow(row);
-                    JOptionPane.showMessageDialog(this, "Payroll entry deleted.");
-                }
-            } else {
-                JOptionPane.showMessageDialog(this, "Please select a payroll entry to delete.");
-            }
-        });
+        deletePayrollBtn.addActionListener(e -> deletePayrollEntry());
     }
 
     private void openAddPayrollFrame() {
@@ -68,9 +66,9 @@ public class PayrollManagement extends JFrame {
         addFrame.setVisible(true);
 
         saveButton.addActionListener(e -> {
-            String name = nameField.getText();
-            String hoursText = hoursField.getText();
-            String rateText = rateField.getText();
+            String name = nameField.getText().trim();
+            String hoursText = hoursField.getText().trim();
+            String rateText = rateField.getText().trim();
             if (!name.isEmpty() && !hoursText.isEmpty() && !rateText.isEmpty()) {
                 try {
                     double hours = Double.parseDouble(hoursText);
@@ -78,6 +76,7 @@ public class PayrollManagement extends JFrame {
                     double totalPay = hours * rate;
 
                     tableModel.addRow(new Object[]{name, hours, rate, String.format("%.2f", totalPay)});
+                    savePayrollData(); // Save to JSON
                     addFrame.dispose();
                 } catch (NumberFormatException ex) {
                     JOptionPane.showMessageDialog(addFrame, "Please enter valid numbers for hours and rate.");
@@ -88,8 +87,57 @@ public class PayrollManagement extends JFrame {
         });
     }
 
+    private void deletePayrollEntry() {
+        int row = payrollTable.getSelectedRow();
+        if (row >= 0) {
+            int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this payroll entry?", "Confirm Deletion", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                tableModel.removeRow(row);
+                savePayrollData(); // Save changes to JSON
+                JOptionPane.showMessageDialog(this, "Payroll entry deleted.");
+            }
+        } else {
+            JOptionPane.showMessageDialog(this, "Please select a payroll entry to delete.");
+        }
+    }
+
+    private void loadPayrollData() {
+        try {
+            Gson gson = new Gson();
+            FileReader reader = new FileReader(DATABASE_FILE);
+            List<String[]> payrollData = gson.fromJson(reader, new TypeToken<List<String[]>>(){}.getType());
+            reader.close();
+
+            if (payrollData != null) {
+                for (String[] entry : payrollData) {
+                    tableModel.addRow(entry);
+                }
+            }
+        } catch (Exception e) {
+            //System.out.println("No payroll data found, starting fresh.");
+        }
+    }
+
+    private void savePayrollData() {
+        try {
+            Gson gson = new Gson();
+            FileWriter writer = new FileWriter(DATABASE_FILE);
+            List<String[]> payrollData = new ArrayList<>();
+            for (int i = 0; i < tableModel.getRowCount(); i++) {
+                String name = (String) tableModel.getValueAt(i, 0);
+                String hours = String.valueOf(tableModel.getValueAt(i, 1));
+                String rate = String.valueOf(tableModel.getValueAt(i, 2));
+                String totalPay = String.valueOf(tableModel.getValueAt(i, 3));
+                payrollData.add(new String[]{name, hours, rate, totalPay});
+            }
+            gson.toJson(payrollData, writer);
+            writer.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> new PayrollManagement().setVisible(true));
     }
 }
-
