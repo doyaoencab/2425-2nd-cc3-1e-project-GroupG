@@ -2,13 +2,11 @@ package com.mycompany.employeemanagementsystemgui;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 
 public class Dashboard {
     private JFrame frame;
     private JPanel panel;
-    private JButton employeeManagementButton, leaveManagementButton, payrollManagementButton, recruitmentButton, calendarButton;
+    private JButton employeeManagementButton, leaveManagementButton, payrollManagementButton, recruitmentButton, calendarButton, logoutButton;
 
     public Dashboard() {
         frame = new JFrame("Dashboard");
@@ -21,7 +19,6 @@ public class Dashboard {
         JLabel title = new JLabel("Welcome to Employee Management System!", JLabel.CENTER);
         title.setFont(new Font("Serif", Font.BOLD, 24));
         title.setForeground(Color.BLACK);
-        title.setPreferredSize(new Dimension(500, 100));
         title.setHorizontalAlignment(SwingConstants.CENTER);
 
         grid.gridx = 0; grid.gridy = 0; grid.gridwidth = 2;
@@ -32,6 +29,7 @@ public class Dashboard {
         payrollManagementButton = new JButton("Payroll Management");
         recruitmentButton = new JButton("Recruitment");
         calendarButton = new JButton("Calendar");
+        logoutButton = new JButton("Logout"); // Logout button
 
         Font buttonFont = new Font("SansSerif", Font.BOLD, 12);
         employeeManagementButton.setFont(buttonFont);
@@ -39,46 +37,23 @@ public class Dashboard {
         payrollManagementButton.setFont(buttonFont);
         recruitmentButton.setFont(buttonFont);
         calendarButton.setFont(buttonFont);
+        logoutButton.setFont(buttonFont);
 
-        employeeManagementButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(frame, "Opening Employee Management");
-            }
-        });
-
-        leaveManagementButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(frame, "Opening Leave Management");
-            }
-        });
-
-        payrollManagementButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(frame, "Opening Payroll Management");
-            }
-        });
-
-        recruitmentButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(frame, "Opening Recruitment");
-            }
-        });
-
-        calendarButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                JOptionPane.showMessageDialog(frame, "Opening Calendar");
-            }
+        // Action listeners for buttons
+        employeeManagementButton.addActionListener(e -> new EmployeeManagement()); // Open Employee Management frame
+        leaveManagementButton.addActionListener(e -> new LeaveManagement().setVisible(true)); // Open Leave Management frame
+        payrollManagementButton.addActionListener(e -> new PayrollManagement().setVisible(true)); // Open Payroll Management frame
+        recruitmentButton.addActionListener(e -> new RecruitmentManagement().setVisible(true)); // Open Recruitment Management frame
+        calendarButton.addActionListener(e -> openCalendarFrame()); // Open CalendarFrame
+        logoutButton.addActionListener(e -> {
+            frame.dispose(); // Close the Dashboard frame
+            new Login(); // Go back to Login
         });
 
         grid.gridy = 1; grid.gridwidth = 2;
         panel.add(employeeManagementButton, grid);
 
-        grid.gridy = 2; grid.gridwidth = 2;
+        grid.gridy = 2;
         panel.add(leaveManagementButton, grid);
 
         grid.gridy = 3;
@@ -90,8 +65,10 @@ public class Dashboard {
         grid.gridy = 5;
         panel.add(calendarButton, grid);
 
-        // Set uniform button sizes
-        setButtonSizes(employeeManagementButton, leaveManagementButton, payrollManagementButton, recruitmentButton, calendarButton);
+        grid.gridy = 6; // Place Logout button at the bottom
+        panel.add(logoutButton, grid);
+
+        setButtonSizes(employeeManagementButton, leaveManagementButton, payrollManagementButton, recruitmentButton, calendarButton, logoutButton);
 
         frame.add(panel, BorderLayout.CENTER);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -101,12 +78,15 @@ public class Dashboard {
     }
 
     private void setButtonSizes(JButton... buttons) {
-        Dimension buttonSize = new Dimension(200, 30);  // Adjusted size for uniformity
         for (JButton button : buttons) {
-            button.setPreferredSize(buttonSize);
-            button.setMinimumSize(buttonSize);
-            button.setMaximumSize(buttonSize);
+            button.setPreferredSize(new Dimension(200, 30));
+            button.setMinimumSize(new Dimension(200, 30));
+            button.setMaximumSize(new Dimension(Integer.MAX_VALUE, 30));
         }
+    }
+
+    private void openCalendarFrame() {
+        new CalendarFrame().setVisible(true); // Correctly open CalendarFrame
     }
 
     public static void main(String[] args) {
